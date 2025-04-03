@@ -4,6 +4,10 @@ from django.utils.timezone import now
 from django.contrib.auth.hashers import make_password
 
 
+class Centre(models.Model):
+    nom = models.CharField(max_length=200)
+
+
 class Categoria(models.Model):
     class Meta:
         verbose_name_plural = "Categories"
@@ -37,8 +41,7 @@ class Cataleg(models.Model):
     anotacions = models.TextField(blank=True,null=True)
     mides = models.CharField(max_length=100,null=True,blank=True)
     tags = models.ManyToManyField(Categoria,blank=True)
-    def exemplars(self):
-    	return 0
+    
     def __str__(self):
         return self.titol
 
@@ -88,8 +91,9 @@ class Dispositiu(Cataleg):
 class Exemplar(models.Model):
     cataleg = models.ForeignKey(Cataleg, on_delete=models.CASCADE)
     registre = models.CharField(max_length=100,null=True,blank=True)
-    exclos_prestec = models.BooleanField(default=True)
+    exclos_prestec = models.BooleanField(default=False) 
     baixa = models.BooleanField(default=False)
+    centre = models.ForeignKey(Centre, on_delete=models.CASCADE)
     def __str__(self):
         return "REG:{} - {}".format(self.registre,self.cataleg.titol)
 
@@ -100,15 +104,13 @@ class Imatge(models.Model):
 
 # Usuaris
 
-class Centre(models.Model):
-    nom = models.CharField(max_length=200)
-
 class Cicle(models.Model):
     nom = models.CharField(max_length=200)
 
 class Usuari(AbstractUser):
     centre = models.ForeignKey(Centre,on_delete=models.SET_NULL,null=True,blank=True)
     cicle = models.ForeignKey(Cicle,on_delete=models.SET_NULL,null=True,blank=True)
+    telefon = models.IntegerField(max_length=9)
     imatge = models.ImageField(upload_to='usuaris/',null=True,blank=True)
     auth_token = models.CharField(max_length=32,blank=True,null=True)
 
@@ -152,5 +154,4 @@ class Log(models.Model):
 
     def __str__(self):
         return f"{self.accio} - {self.tipus}"
-
 
