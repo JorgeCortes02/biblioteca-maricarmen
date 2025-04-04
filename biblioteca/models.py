@@ -90,13 +90,18 @@ class Dispositiu(Cataleg):
 
 class Exemplar(models.Model):
     cataleg = models.ForeignKey(Cataleg, on_delete=models.CASCADE)
-    registre = models.CharField(max_length=100,null=True,blank=True)
+    registre = models.CharField(max_length=100, null=True, blank=True)
     exclos_prestec = models.BooleanField(default=False) 
     baixa = models.BooleanField(default=False)
     centre = models.ForeignKey(Centre, on_delete=models.CASCADE)
-    def __str__(self):
-        return "REG:{} - {}".format(self.registre,self.cataleg.titol)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['cataleg', 'id'], name='unique_cataleg_exemplar')
+        ]
+    
+    def __str__(self):
+        return f"REG:{self.registre} - {self.cataleg.titol}"
 class Imatge(models.Model):
     cataleg = models.ForeignKey(Cataleg, on_delete=models.CASCADE)
     imatge = models.ImageField(upload_to='imatges/')
@@ -110,7 +115,8 @@ class Cicle(models.Model):
 class Usuari(AbstractUser):
     centre = models.ForeignKey(Centre,on_delete=models.SET_NULL,null=True,blank=True)
     cicle = models.ForeignKey(Cicle,on_delete=models.SET_NULL,null=True,blank=True)
-    telefon = models.IntegerField(max_length=9)
+    telefon =  models.CharField(max_length=9,blank=True,null=True)
+
     imatge = models.ImageField(upload_to='usuaris/',null=True,blank=True)
     auth_token = models.CharField(max_length=32,blank=True,null=True)
 
